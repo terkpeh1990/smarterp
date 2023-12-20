@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  django_gunicorn:
+    volumes:
+      - ./django_project:/usr/src/erp
+      # - ./django_project/media:/media
+    env_file:
+      - .env
+    build:
+      context: .
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./django_project/:/var/www/html/erp
+      # - ./media:/media
+    ports:
+      - "80:80"
+    depends_on:
+      - django_gunicorn
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=erpuser
+      - POSTGRES_PASSWORD=lovia2020
+      - POSTGRES_DB=multitenant-erp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    
+      
+volumes:
+  postgres_data:
+  # static:
+  # media:
